@@ -33,19 +33,33 @@ def get_boto3_session(aws_user):
                             aws_secret_access_key=aws_secret_access_key,
                             region_name=aws_region)
 
-    print(session)
-
     return session
 
 
 def create_s3_bucket():
+    """
+    Creates an s3 bucket called 'sparkify'.
+    :return:
+    """
     aws_user = 'admin'
     session = get_boto3_session(aws_user)
     s3_client = session.client('s3')
 
-    s3_client.create_bucket(Bucket='finas-test-bucket')
+    s3_client.create_bucket(Bucket='sparkify')
+
+
+def delete_s3_bucket():
+    """
+    Deletes s3 bucket called 'sparkify'.
+    :return:
+    """
+    aws_user = 'admin'
+    session = get_boto3_session(aws_user)
+    s3_client = session.client('s3')
+
+    s3_client.delete_bucket(Bucket='sparkify')
+
 
 if __name__ == "__main__":
-    result = create_s3_bucket()
-
-    print(result)
+    # create_s3_bucket()
+    delete_s3_bucket()
