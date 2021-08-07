@@ -1,4 +1,4 @@
 .idea
 venv
-dwh.cfg
+*.cfg
 __pycache__/
