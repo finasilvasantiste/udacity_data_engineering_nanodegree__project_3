@@ -5,6 +5,19 @@ aws_users = {'admin': 'AWS_CREDS_ADMIN',
              'redshift': 'AWS_CREDS_REDSHIFT'}
 
 
+def get_redshift_cluster_details():
+    """
+    Returns redshift cluster details.
+    :return: three strings
+    """
+    config = configparser.ConfigParser()
+    config.read_file((open(r'dwh.cfg')))
+
+    aws_access_key_id = config.get('REDSHIFT_CLUSTER', 'AWS_ACCESS_KEY_ID')
+    aws_secret_access_key = config.get('REDSHIFT_CLUSTER', 'AWS_SECRET_ACCESS_KEY')
+
+    return aws_access_key_id, aws_secret_access_key
+
 def get_aws_credentials(aws_user):
     """
     Returns aws credentials for given user.
@@ -59,6 +72,18 @@ def delete_s3_bucket():
 
     s3_client.delete_bucket(Bucket='sparkify')
 
+
+def create_redshift_cluster():
+    """
+    Creates a redshift cluster called 'sparkify-cluster'.
+    :return:
+    """
+    aws_user = 'admin'
+    session = get_boto3_session(aws_user)
+    redshift_client = session.client('redshift')
+
+    redshift_client.create_cluster(ClusterIdentifier='sparkify-cluster',
+                                   NodeType='dc2.Large')
 
 if __name__ == "__main__":
     # create_s3_bucket()
