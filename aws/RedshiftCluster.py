@@ -2,6 +2,7 @@ import configparser
 from aws.AWSClient import AWSClient
 import pandas as pd
 import json
+import time
 
 
 class RedshiftCluster:
@@ -19,6 +20,7 @@ class RedshiftCluster:
         self.number_of_nodes = 4
         self.iam_role_name = config.get('REDSHIFT_CLUSTER', 'IAM_ROLE_NAME')
         self.iam_role_arn = None
+        self.cluster_arn = None
 
     def create_iam_role(self):
         """
@@ -41,6 +43,7 @@ class RedshiftCluster:
                      'Version': '2012-10-17'})
             )
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
         try:
@@ -50,6 +53,7 @@ class RedshiftCluster:
                 RoleName=self.iam_role_name,
                 PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess')
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
         try:
@@ -57,6 +61,7 @@ class RedshiftCluster:
 
             self.iam_role_arn = iam_client.get_role(RoleName=self.iam_role_name)['Role']['Arn']
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
     def delete_iam_role(self):
@@ -74,6 +79,7 @@ class RedshiftCluster:
                                           )
             iam_client.delete_role(RoleName=self.iam_role_name)
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
     def create_cluster(self):
@@ -81,6 +87,8 @@ class RedshiftCluster:
         Creates redshift cluster.
         :return:
         """
+        self.create_iam_role()
+
         redshift_client = AWSClient(resource='redshift').client
 
         try:
@@ -94,6 +102,7 @@ class RedshiftCluster:
                                            NumberOfNodes=self.number_of_nodes,
                                            IamRoles=[self.iam_role_arn])
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
     def delete_cluster(self):
@@ -101,6 +110,8 @@ class RedshiftCluster:
         Deletes redshift cluster.
         :return:
         """
+        self.delete_iam_role()
+
         redshift_client = AWSClient(resource='redshift').client
 
         try:
@@ -109,7 +120,63 @@ class RedshiftCluster:
             redshift_client.delete_cluster(ClusterIdentifier=self.cluster_identifier,
                                            SkipFinalClusterSnapshot=True)
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
+
+    def get_cluster_description(self):
+        """
+        Returns cluster description.
+        :return:
+        """
+        redshift_client = AWSClient(resource='redshift').client
+        cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
+
+        return cluster_description
+
+    def get_cluster_status(self):
+        """
+        Returns cluster status.
+        :return: string containing cluster status
+        """
+        cluster_description = self.get_cluster_description()
+        # redshift_client = AWSClient(resource='redshift').client
+        # cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
+        cluster_status = cluster_description['ClusterStatus']
+
+        return cluster_status
+
+    def get_cluster_arn(self):
+        """
+        Returns cluster arn.
+        :return:
+        """
+        cluster_description = self.get_cluster_description()
+        arn = cluster_description['Endpoint']['Address']
+
+        return arn
+
+    def is_available(self):
+        """
+        Returns whether cluster status is available.
+        :return: boolean
+        """
+        cluster_status = self.get_cluster_status()
+
+        return cluster_status == 'available'
+
+    def set_cluster_arn(self):
+        """
+        Sets the cluster ARN.
+        :return:
+        """
+        while not self.is_available():
+            print('+++++ Cluster is not available yet. '
+                  'Waiting 10 seconds before checking the cluster status again. +++++')
+
+            time.sleep(10)
+
+        print('+++++ Cluster is available, saving cluster ARN... +++++')
+        self.cluster_arn = self.get_cluster_arn()
 
     def describe_cluster(self):
         """
@@ -120,6 +187,12 @@ class RedshiftCluster:
         cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
 
         print(RedshiftCluster.prettyRedshiftProps(cluster_description))
+
+        # saved_iam_role = cluster_description['IamRoles'][0]['IamRoleArn']
+        # print('With IAM Roles: {}'.format(saved_iam_role))
+
+        # cluster_arn = cluster_description['Endpoint']['Address']
+        # print(cluster_arn)
 
     # copy-pasted this handy method from a jupyter notebook used in the lecture.
     @staticmethod
