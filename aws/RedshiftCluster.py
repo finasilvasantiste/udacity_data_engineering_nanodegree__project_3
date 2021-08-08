@@ -95,8 +95,6 @@ class RedshiftCluster:
                                            IamRoles=[self.iam_role_arn])
         except Exception as e:
             print(e)
-        finally:
-            print("+++++ The 'try except' is finished. +++++")
 
     def delete_cluster(self):
         """
@@ -112,8 +110,6 @@ class RedshiftCluster:
                                            SkipFinalClusterSnapshot=True)
         except Exception as e:
             print(e)
-        finally:
-            print("+++++ The 'try except' is finished. +++++")
 
     def describe_cluster(self):
         """
