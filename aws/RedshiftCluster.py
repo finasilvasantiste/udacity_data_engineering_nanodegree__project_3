@@ -101,6 +101,7 @@ class RedshiftCluster:
                                            MasterUserPassword=self.password,
                                            NumberOfNodes=self.number_of_nodes,
                                            IamRoles=[self.iam_role_arn])
+            self.set_cluster_arn()
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
@@ -139,8 +140,6 @@ class RedshiftCluster:
         :return: string containing cluster status
         """
         cluster_description = self.get_cluster_description()
-        # redshift_client = AWSClient(resource='redshift').client
-        # cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
         cluster_status = cluster_description['ClusterStatus']
 
         return cluster_status
@@ -183,20 +182,22 @@ class RedshiftCluster:
         Describes redshift cluster.
         :return:
         """
-        redshift_client = AWSClient(resource='redshift').client
-        cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
-
-        print(RedshiftCluster.prettyRedshiftProps(cluster_description))
-
-        # saved_iam_role = cluster_description['IamRoles'][0]['IamRoleArn']
-        # print('With IAM Roles: {}'.format(saved_iam_role))
-
-        # cluster_arn = cluster_description['Endpoint']['Address']
-        # print(cluster_arn)
+        try:
+            print('+++++ Describing cluster: +++++')
+            cluster_description = self.get_cluster_description()
+            print(RedshiftCluster.prettyRedshiftProps(cluster_description))
+        except Exception as e:
+            print('+++++ Threw Exception +++++')
+            print(e)
 
     # copy-pasted this handy method from a jupyter notebook used in the lecture.
     @staticmethod
     def prettyRedshiftProps(props):
+        """
+        Formats given props in a way that is easier to read.
+        :param props: data to format
+        :return: df with formatted data
+        """
         pd.set_option('display.max_colwidth', None)
         keysToShow = ["ClusterIdentifier", "NodeType", "ClusterStatus", "MasterUsername", "DBName", "Endpoint",
                       "NumberOfNodes", 'VpcId']
