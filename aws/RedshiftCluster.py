@@ -18,6 +18,7 @@ class RedshiftCluster:
         self.cluster_type = 'multi-node'
         self.node_type = 'dc2.Large'
         self.number_of_nodes = 4
+        self.db_name = config.get('REDSHIFT_CLUSTER', 'DB_NAME')
         self.iam_role_name = config.get('REDSHIFT_CLUSTER', 'IAM_ROLE_NAME')
         self.iam_role_arn = None
         self.cluster_arn = None
@@ -78,6 +79,7 @@ class RedshiftCluster:
                                           PolicyArn='arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess'
                                           )
             iam_client.delete_role(RoleName=self.iam_role_name)
+            self.iam_role_arn = None
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
@@ -100,7 +102,8 @@ class RedshiftCluster:
                                            MasterUsername=self.user_name,
                                            MasterUserPassword=self.password,
                                            NumberOfNodes=self.number_of_nodes,
-                                           IamRoles=[self.iam_role_arn])
+                                           IamRoles=[self.iam_role_arn],
+                                           DBName=self.db_name)
             self.set_cluster_arn()
         except Exception as e:
             print('+++++ Threw Exception +++++')
@@ -120,6 +123,7 @@ class RedshiftCluster:
 
             redshift_client.delete_cluster(ClusterIdentifier=self.cluster_identifier,
                                            SkipFinalClusterSnapshot=True)
+            self.cluster_arn = None
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
@@ -144,9 +148,9 @@ class RedshiftCluster:
 
         return cluster_status
 
-    def get_cluster_arn(self):
+    def get_cluster_arn_from_cloud(self):
         """
-        Returns cluster arn.
+        Returns cluster arn. Queries aws to get the arn.
         :return:
         """
         cluster_description = self.get_cluster_description()
@@ -175,7 +179,7 @@ class RedshiftCluster:
             time.sleep(10)
 
         print('+++++ Cluster is available, saving cluster ARN... +++++')
-        self.cluster_arn = self.get_cluster_arn()
+        self.cluster_arn = self.get_cluster_arn_from_cloud()
 
     def describe_cluster(self):
         """
