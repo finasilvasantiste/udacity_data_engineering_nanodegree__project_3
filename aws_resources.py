@@ -29,6 +29,10 @@ def create_redshift_cluster():
     # redshift_client.create_cluster(ClusterIdentifier='sparkify-cluster',
     #                                NodeType='dc2.Large')
     rc = RedshiftCluster()
+    # rc.create_cluster()
+
+    rc.delete_cluster()
+    # rc.describe_cluster()
 
 if __name__ == "__main__":
     # create_s3_bucket()

@@ -7,6 +7,7 @@ name = "pypi"
 psycopg2 = "*"
 configparser = "*"
 boto3 = "*"
+pandas = "*"
 
 [dev-packages]
 
