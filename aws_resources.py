@@ -5,6 +5,19 @@ aws_users = {'admin': 'AWS_CREDS_ADMIN',
              'redshift': 'AWS_CREDS_REDSHIFT'}
 
 
+def get_client(resource):
+    """
+    Returns authenticated client for given resource.
+    :param resource: resource
+    :return:
+    """
+    aws_user = 'admin'
+    session = get_boto3_session(aws_user)
+    s3_client = session.client(resource)
+
+    return s3_client
+
+
 def get_redshift_cluster_details():
     """
     Returns redshift cluster details.
@@ -13,10 +26,11 @@ def get_redshift_cluster_details():
     config = configparser.ConfigParser()
     config.read_file((open(r'dwh.cfg')))
 
-    aws_access_key_id = config.get('REDSHIFT_CLUSTER', 'AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = config.get('REDSHIFT_CLUSTER', 'AWS_SECRET_ACCESS_KEY')
+    user_name = config.get('REDSHIFT_CLUSTER', 'USER_NAME')
+    password = config.get('REDSHIFT_CLUSTER', 'PASSWORD')
 
-    return aws_access_key_id, aws_secret_access_key
+    return user_name, password
+
 
 def get_aws_credentials(aws_user):
     """
@@ -51,26 +65,20 @@ def get_boto3_session(aws_user):
 
 def create_s3_bucket():
     """
-    Creates an s3 bucket called 'sparkify'.
+    Creates an s3 bucket called 'sparkify-fina'.
     :return:
     """
-    aws_user = 'admin'
-    session = get_boto3_session(aws_user)
-    s3_client = session.client('s3')
-
-    s3_client.create_bucket(Bucket='sparkify')
+    s3_client = get_client(resource='s3')
+    s3_client.create_bucket(Bucket='sparkify-fina')
 
 
 def delete_s3_bucket():
     """
-    Deletes s3 bucket called 'sparkify'.
+    Deletes s3 bucket called 'sparkify-fina'.
     :return:
     """
-    aws_user = 'admin'
-    session = get_boto3_session(aws_user)
-    s3_client = session.client('s3')
-
-    s3_client.delete_bucket(Bucket='sparkify')
+    s3_client = get_client(resource='s3')
+    s3_client.delete_bucket(Bucket='sparkify-fina')
 
 
 def create_redshift_cluster():
@@ -78,12 +86,12 @@ def create_redshift_cluster():
     Creates a redshift cluster called 'sparkify-cluster'.
     :return:
     """
-    aws_user = 'admin'
-    session = get_boto3_session(aws_user)
-    redshift_client = session.client('redshift')
+    s3_client = get_client(resource='redshift')
+    # redshift_client.create_cluster(ClusterIdentifier='sparkify-cluster',
+    #                                NodeType='dc2.Large')
 
-    redshift_client.create_cluster(ClusterIdentifier='sparkify-cluster',
-                                   NodeType='dc2.Large')
+    print(s3_client)
+
 
 if __name__ == "__main__":
     # create_s3_bucket()
