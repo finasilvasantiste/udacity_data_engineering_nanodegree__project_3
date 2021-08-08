@@ -18,7 +18,7 @@ class RedshiftCluster:
         self.node_type = 'dc2.Large'
         self.number_of_nodes = 4
         self.iam_role_name = config.get('REDSHIFT_CLUSTER', 'IAM_ROLE_NAME')
-        self.iam_role_arn = None  # TODO: create redshift user and add to cluster
+        self.iam_role_arn = None
 
     def create_iam_role(self):
         """
@@ -55,7 +55,7 @@ class RedshiftCluster:
         try:
             print('+++++ Saving IAM Role ARN... +++++')
 
-            self.iam_role_name = iam_client.get_role(RoleName=self.iam_role_name)['Role']['Arn']
+            self.iam_role_arn = iam_client.get_role(RoleName=self.iam_role_name)['Role']['Arn']
         except Exception as e:
             print(e)
 
@@ -91,7 +91,8 @@ class RedshiftCluster:
                                            NodeType=self.node_type,
                                            MasterUsername=self.user_name,
                                            MasterUserPassword=self.password,
-                                           NumberOfNodes=self.number_of_nodes)
+                                           NumberOfNodes=self.number_of_nodes,
+                                           IamRoles=[self.iam_role_arn])
         except Exception as e:
             print(e)
         finally:
