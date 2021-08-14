@@ -21,9 +21,9 @@ class DBHandler:
     def get_db_connection(self):
 
         ec2 = boto3.resource('ec2',
-                             region_name="us-east-1",
-                             aws_access_key_id='AKIAX44KHN3JRDQIPLX4',
-                             aws_secret_access_key='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'
+                             region_name="",  # use aws creds
+                             aws_access_key_id='', # use aws creds
+                             aws_secret_access_key='' # use aws creds
                              )
         try:
             vpc = ec2.Vpc(id=self.vpc_id)
