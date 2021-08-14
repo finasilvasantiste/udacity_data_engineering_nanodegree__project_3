@@ -21,7 +21,8 @@ class RedshiftCluster:
         self.db_name = config.get('REDSHIFT_CLUSTER', 'DB_NAME')
         self.iam_role_name = config.get('REDSHIFT_CLUSTER', 'IAM_ROLE_NAME')
         self.iam_role_arn = None
-        self.cluster_arn = None
+        self.address = None
+        self.port = None
 
     def create_iam_role(self):
         """
@@ -110,7 +111,7 @@ class RedshiftCluster:
                                            NumberOfNodes=self.number_of_nodes,
                                            IamRoles=[self.iam_role_arn],
                                            DBName=self.db_name)
-            self.set_cluster_arn()
+            self.set_cluster_address()
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
@@ -135,14 +136,14 @@ class RedshiftCluster:
 
             redshift_client.delete_cluster(ClusterIdentifier=self.cluster_identifier,
                                            SkipFinalClusterSnapshot=True)
-            self.cluster_arn = None
+            self.address = None
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
 
     def get_cluster_description(self):
         """
-        Returns cluster description.
+        Returns cluster description. Queries aws to get the arn.
         :return:
         """
         redshift_client = AWSClient(resource='redshift').client
@@ -160,15 +161,25 @@ class RedshiftCluster:
 
         return cluster_status
 
-    def get_cluster_arn_from_cloud(self):
+    def get_cluster_address_from_cloud(self):
         """
-        Returns cluster arn. Queries aws to get the arn.
+        Returns cluster address. Queries aws to get the arn.
         :return:
         """
         cluster_description = self.get_cluster_description()
         arn = cluster_description['Endpoint']['Address']
 
         return arn
+
+    def get_cluster_port_from_cloud(self):
+        """
+        Returns cluster port. Queries aws to get the arn.
+        :return:
+        """
+        cluster_description = self.get_cluster_description()
+        port = cluster_description['Endpoint']['Port']
+
+        return port
 
     def is_available(self):
         """
@@ -179,9 +190,9 @@ class RedshiftCluster:
 
         return cluster_status == 'available'
 
-    def set_cluster_arn(self):
+    def set_cluster_address(self):
         """
-        Sets the cluster ARN.
+        Sets the cluster address.
         :return:
         """
         while not self.is_available():
@@ -190,8 +201,7 @@ class RedshiftCluster:
 
             time.sleep(10)
 
-        print('+++++ Cluster is available, saving cluster ARN... +++++')
-        self.cluster_arn = self.get_cluster_arn_from_cloud()
+        print('+++++ Cluster is available. +++++')
 
     def describe_cluster(self):
         """

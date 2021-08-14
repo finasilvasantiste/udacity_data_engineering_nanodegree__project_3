@@ -1,6 +1,6 @@
 from aws.AWSClient import AWSClient
 from aws.RedshiftCluster import RedshiftCluster
-
+from db.DBHandler import DBHandler
 
 def create_s3_bucket():
     """
@@ -23,8 +23,12 @@ def delete_s3_bucket():
 if __name__ == "__main__":
     rc = RedshiftCluster()
 
-    # rc.describe_cluster()
+    rc.describe_cluster()
 
     # rc.create_all_resources()
     # rc.delete_all_resources()
     # print(rc.cluster_arn)
+
+    db = DBHandler(redshiftCluster=rc)
+
+    db.get_db_connection()
