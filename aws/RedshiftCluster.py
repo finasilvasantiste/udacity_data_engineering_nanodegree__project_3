@@ -84,13 +84,19 @@ class RedshiftCluster:
             print('+++++ Threw Exception +++++')
             print(e)
 
+    def create_all_resources(self):
+        """
+        Creates all necessary Redshift resources.
+        :return:
+        """
+        self.create_iam_role()
+        self.create_cluster()
+
     def create_cluster(self):
         """
         Creates redshift cluster.
         :return:
         """
-        self.create_iam_role()
-
         redshift_client = AWSClient(resource='redshift').client
 
         try:
@@ -109,13 +115,19 @@ class RedshiftCluster:
             print('+++++ Threw Exception +++++')
             print(e)
 
+    def delete_all_resources(self):
+        """
+        Delete all resources.
+        :return:
+        """
+        self.delete_iam_role()
+        self.delete_cluster()
+
     def delete_cluster(self):
         """
         Deletes redshift cluster.
         :return:
         """
-        self.delete_iam_role()
-
         redshift_client = AWSClient(resource='redshift').client
 
         try:

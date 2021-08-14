@@ -22,10 +22,9 @@ def delete_s3_bucket():
 
 if __name__ == "__main__":
     rc = RedshiftCluster()
-    # rc.create_cluster()
 
-    rc.delete_cluster()
     # rc.describe_cluster()
 
-    # rc.set_cluster_arn()
-    print(rc.cluster_arn)
+    # rc.create_all_resources()
+    # rc.delete_all_resources()
+    # print(rc.cluster_arn)
