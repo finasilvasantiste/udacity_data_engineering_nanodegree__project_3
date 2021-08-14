@@ -27,7 +27,6 @@ if __name__ == "__main__":
 
     # rc.create_all_resources()
     # rc.delete_all_resources()
-    # print(rc.cluster_arn)
 
     db = DBHandler(redshiftCluster=rc)
 

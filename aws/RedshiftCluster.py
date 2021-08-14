@@ -161,9 +161,19 @@ class RedshiftCluster:
 
         return cluster_status
 
+    def get_cluster_vpc_id_from_cloud(self):
+        """
+        Returns cluster vpc id. Queries aws to get the information.
+        :return:
+        """
+        cluster_description = self.get_cluster_description()
+        vpc_id = cluster_description['VpcId']
+
+        return vpc_id
+
     def get_cluster_address_from_cloud(self):
         """
-        Returns cluster address. Queries aws to get the arn.
+        Returns cluster address. Queries aws to get the information.
         :return:
         """
         cluster_description = self.get_cluster_description()
@@ -173,7 +183,7 @@ class RedshiftCluster:
 
     def get_cluster_port_from_cloud(self):
         """
-        Returns cluster port. Queries aws to get the arn.
+        Returns cluster port. Queries aws to get the information.
         :return:
         """
         cluster_description = self.get_cluster_description()
