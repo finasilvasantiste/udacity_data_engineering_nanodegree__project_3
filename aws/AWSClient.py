@@ -5,8 +5,7 @@ import configparser
 class AWSClient:
     """ Represents an aws client. """
 
-    aws_users = {'admin': 'AWS_CREDS_ADMIN',
-                 'redshift': 'AWS_CREDS_REDSHIFT'}
+    aws_users = {'admin': 'AWS_CREDS_ADMIN'}
 
     def __init__(self, resource):
         self.aws_user = 'admin'

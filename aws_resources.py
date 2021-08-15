@@ -7,8 +7,8 @@ if __name__ == "__main__":
 
     # rc.describe_cluster()
 
-    # rc.create_all_resources()
-    rc.delete_all_resources()
+    rc.create_all_resources()
+    # rc.delete_all_resources()
 
     # db = DBHandler(redshiftCluster=rc)
 
