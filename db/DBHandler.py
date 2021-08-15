@@ -33,8 +33,7 @@ class DBHandler:
                              )
         try:
             vpc = ec2.Vpc(id=self.vpc_id)
-            defaultSg = list(vpc.security_groups.all())[0]
-            # defaultSg = list(vpc.security_groups.all())[-1]
+            defaultSg = list(vpc.security_groups.all())[-1]  # Using default group.
             print(defaultSg)
             defaultSg.authorize_ingress(
                 GroupName=defaultSg.group_name,
@@ -45,25 +44,29 @@ class DBHandler:
             )
         except Exception as e:
             print(e)
-        #
-        # user = self.user_name
-        # password = self.password
-        # address = self.address
-        # port = int(self.port)
-        # db_name = self.db_name
-        # print(address)
-        # conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(address,
-        #                                                                                db_name,
-        #                                                                                user,
-        #                                                                                password,
-        #                                                                                port))
-        # cur = conn.cursor()
-        #
-        #
-        # queries = ['SELECT * FROM pg_catalog.pg_tables;']
-        #
-        # for query in queries:
-        #     cur.execute(query)
-        #     conn.commit()
-        #
-        # conn.close()
+
+        user = self.user_name
+        password = self.password
+        address = self.address
+        port = int(self.port)
+        db_name = self.db_name
+        print(address)
+        conn = psycopg2.connect("host={} dbname={} user={} password={} port={}".format(address,
+                                                                                       db_name,
+                                                                                       user,
+                                                                                       password,
+                                                                                       port))
+        cur = conn.cursor()
+
+
+        queries = ['SELECT * FROM pg_catalog.pg_tables;']
+
+        for query in queries:
+            cur.execute(query)
+
+            conn.commit()
+            results = cur.fetchall()
+            for r in results:
+                print(r)
+
+        conn.close()
