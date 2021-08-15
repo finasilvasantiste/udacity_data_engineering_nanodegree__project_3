@@ -2,6 +2,7 @@ import configparser
 from aws.RedshiftCluster import RedshiftCluster
 import psycopg2
 import boto3
+from aws.AWSClient import AWSClient
 
 class DBHandler:
 
@@ -18,16 +19,22 @@ class DBHandler:
         self.vpc_id = redshiftCluster.get_cluster_vpc_id_from_cloud()
         self.cnx = None
 
+        aws_access_key_id, aws_secret_access_key, aws_region = AWSClient.get_aws_credentials()
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
+        self.aws_region = aws_region
+
     def get_db_connection(self):
 
         ec2 = boto3.resource('ec2',
-                             region_name="",  # use aws creds
-                             aws_access_key_id='', # use aws creds
-                             aws_secret_access_key='' # use aws creds
+                             region_name=self.aws_region,
+                             aws_access_key_id=self.aws_access_key_id,
+                             aws_secret_access_key=self.aws_secret_access_key
                              )
         try:
             vpc = ec2.Vpc(id=self.vpc_id)
             defaultSg = list(vpc.security_groups.all())[0]
+            # defaultSg = list(vpc.security_groups.all())[-1]
             print(defaultSg)
             defaultSg.authorize_ingress(
                 GroupName=defaultSg.group_name,
