@@ -2,7 +2,6 @@ from aws.RedshiftCluster import RedshiftCluster
 from db.DBHandler import DBHandler
 
 if __name__ == "__main__":
-
     ### IF YOU'RE A UDACITY PROJECT REVIEWER, PLEASE READ:
     ### UDACITY TECHNICAL MENTORS WERE ABLE TO HELP ME DEBUG MY ISSUES.
     ### NO REVIEW IS NEEDED AT THIS POINT SINCE I CAN GOT UNSTUCK AND CAN CONTINUE WORKING.
