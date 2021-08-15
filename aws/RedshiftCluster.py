@@ -1,5 +1,6 @@
 import configparser
 from aws.AWSClient import AWSClient
+from aws.AWSResource import AWSResource
 import pandas as pd
 import json
 import time
@@ -29,7 +30,7 @@ class RedshiftCluster:
         Creates IAM role for redshift cluster to access S3.
         :return:
         """
-        iam_client = AWSClient(resource='iam').client
+        iam_client = AWSClient(client_name='iam').client
 
         try:
             print('+++++ Creating IAM Role... +++++')
@@ -71,7 +72,7 @@ class RedshiftCluster:
         Deletes IAM role for redshift cluster to access S3.
         :return:
         """
-        iam_client = AWSClient(resource='iam').client
+        iam_client = AWSClient(client_name='iam').client
 
         try:
             print('+++++ Deleting IAM Role ARN... +++++')
@@ -85,6 +86,27 @@ class RedshiftCluster:
             print('+++++ Threw Exception +++++')
             print(e)
 
+    def add_inbound_rule(self):
+        """
+        Add inbound rule for Redshift.
+        :return:
+        """
+        ec2 = AWSResource(resource_name='ec2').resource
+
+        try:
+            vpc = ec2.Vpc(id=self.get_cluster_vpc_id_from_cloud())
+            defaultSg = list(vpc.security_groups.all())[-1]  # Using default group.
+            print(defaultSg)
+            defaultSg.authorize_ingress(
+                GroupName=defaultSg.group_name,
+                CidrIp='0.0.0.0/0',
+                IpProtocol='TCP',
+                FromPort=int(self.port),
+                ToPort=int(self.port)
+            )
+        except Exception as e:
+            print(e)
+
     def create_all_resources(self):
         """
         Creates all necessary Redshift resources.
@@ -92,13 +114,14 @@ class RedshiftCluster:
         """
         self.create_iam_role()
         self.create_cluster()
+        self.add_inbound_rule()
 
     def create_cluster(self):
         """
         Creates redshift cluster.
         :return:
         """
-        redshift_client = AWSClient(resource='redshift').client
+        redshift_client = AWSClient(client_name='redshift').client
 
         try:
             print('+++++ Creating cluster {}... +++++'.format(self.cluster_identifier))
@@ -129,7 +152,7 @@ class RedshiftCluster:
         Deletes redshift cluster.
         :return:
         """
-        redshift_client = AWSClient(resource='redshift').client
+        redshift_client = AWSClient(client_name='redshift').client
 
         try:
             print('+++++ Deleteting cluster {}... +++++'.format(self.cluster_identifier))
@@ -146,7 +169,7 @@ class RedshiftCluster:
         Returns cluster description. Queries aws to get the arn.
         :return:
         """
-        redshift_client = AWSClient(resource='redshift').client
+        redshift_client = AWSClient(client_name='redshift').client
         cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
 
         return cluster_description

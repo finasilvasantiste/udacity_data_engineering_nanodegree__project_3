@@ -1,8 +1,8 @@
 from aws.RedshiftCluster import RedshiftCluster
 from db.DBHandler import DBHandler
 
-
 if __name__ == "__main__":
+
     ### IF YOU'RE A UDACITY PROJECT REVIEWER, PLEASE READ:
     ### UDACITY TECHNICAL MENTORS WERE ABLE TO HELP ME DEBUG MY ISSUES.
     ### NO REVIEW IS NEEDED AT THIS POINT SINCE I CAN GOT UNSTUCK AND CAN CONTINUE WORKING.
@@ -18,17 +18,17 @@ if __name__ == "__main__":
     ### UPDATE: I went ahead and created a new user with the AdministratorAccess policy.
     ### For whatever reason AWS seems to be ok with that one and resource creation works fine again!
     # rc.create_all_resources()
-    rc.describe_cluster()
+    # rc.describe_cluster()
 
-    # rc.delete_all_resources()
+    rc.delete_all_resources()
 
 
     ### CREATE DB CONNECTION
 
-    db = DBHandler(redshiftCluster=rc)
+    # db = DBHandler(redshiftCluster=rc)
 
     ### Once resources created successfully via rc.create_all_resources(), throws error:
     ### 'Is the server running and acceptingTCP/IP connections on port 5439?'
     ###
     ### UPDATE: the set up for the security group was incomplete. I've switched to using the default security group.
-    db.get_db_connection()
+    # db.get_db_connection()
