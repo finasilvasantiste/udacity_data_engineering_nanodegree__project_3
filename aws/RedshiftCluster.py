@@ -22,8 +22,6 @@ class RedshiftCluster:
         self.db_name = config.get('REDSHIFT_CLUSTER', 'DB_NAME')
         self.iam_role_name = config.get('REDSHIFT_CLUSTER', 'IAM_ROLE_NAME')
         self.iam_role_arn = None
-        self.address = None
-        self.port = None
 
     def create_iam_role(self):
         """
@@ -92,19 +90,23 @@ class RedshiftCluster:
         :return:
         """
         ec2 = AWSResource(resource_name='ec2').resource
+        vpc_id = self.get_cluster_vpc_id_from_cloud()
+        port = self.get_cluster_port_from_cloud()
 
         try:
-            vpc = ec2.Vpc(id=self.get_cluster_vpc_id_from_cloud())
+            print('+++++ Adding Redshift inbound rule to security group... +++++')
+            vpc = ec2.Vpc(id=vpc_id)
             defaultSg = list(vpc.security_groups.all())[-1]  # Using default group.
             print(defaultSg)
             defaultSg.authorize_ingress(
                 GroupName=defaultSg.group_name,
                 CidrIp='0.0.0.0/0',
                 IpProtocol='TCP',
-                FromPort=int(self.port),
-                ToPort=int(self.port)
+                FromPort=int(port),
+                ToPort=int(port)
             )
         except Exception as e:
+            print('+++++ Threw Exception +++++')
             print(e)
 
     def create_all_resources(self):
@@ -159,7 +161,6 @@ class RedshiftCluster:
 
             redshift_client.delete_cluster(ClusterIdentifier=self.cluster_identifier,
                                            SkipFinalClusterSnapshot=True)
-            self.address = None
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
