@@ -18,14 +18,14 @@ if __name__ == "__main__":
     ### UPDATE: I went ahead and created a new user with the AdministratorAccess policy.
     ### For whatever reason AWS seems to be ok with that one and resource creation works fine again!
     # rc.create_all_resources()
-    # rc.describe_cluster()
+    RedshiftCluster.describe_cluster()
 
-    rc.delete_all_resources()
+    # rc.delete_all_resources()
 
 
     ### CREATE DB CONNECTION
 
-    # db = DBHandler(redshiftCluster=rc)
+    db = DBHandler()
 
     ### Once resources created successfully via rc.create_all_resources(), throws error:
     ### 'Is the server running and acceptingTCP/IP connections on port 5439?'

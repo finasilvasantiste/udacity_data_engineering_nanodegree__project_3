@@ -5,14 +5,15 @@ import pandas as pd
 import json
 import time
 
+config = configparser.ConfigParser()
+config.read_file((open(r'dwh.cfg')))
+
 
 class RedshiftCluster:
     """ Represents a redshift cluster."""
+    cluster_identifier = config.get('REDSHIFT_CLUSTER', 'CLUSTER_IDENTIFIER')
 
     def __init__(self):
-        config = configparser.ConfigParser()
-        config.read_file((open(r'dwh.cfg')))
-
         self.user_name = config.get('REDSHIFT_CLUSTER', 'USER_NAME')
         self.password = config.get('REDSHIFT_CLUSTER', 'PASSWORD')
         self.cluster_identifier = config.get('REDSHIFT_CLUSTER', 'CLUSTER_IDENTIFIER')
@@ -90,8 +91,8 @@ class RedshiftCluster:
         :return:
         """
         ec2 = AWSResource(resource_name='ec2').resource
-        vpc_id = self.get_cluster_vpc_id_from_cloud()
-        port = self.get_cluster_port_from_cloud()
+        vpc_id = RedshiftCluster.get_cluster_vpc_id_from_cloud()
+        port = RedshiftCluster.get_cluster_port_from_cloud()
 
         try:
             print('+++++ Adding Redshift inbound rule to security group... +++++')
@@ -136,7 +137,7 @@ class RedshiftCluster:
                                            NumberOfNodes=self.number_of_nodes,
                                            IamRoles=[self.iam_role_arn],
                                            DBName=self.db_name)
-            self.set_cluster_address()
+            RedshiftCluster.wait_for_cluster_availability()
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
@@ -165,71 +166,78 @@ class RedshiftCluster:
             print('+++++ Threw Exception +++++')
             print(e)
 
-    def get_cluster_description(self):
+    @staticmethod
+    def get_cluster_description():
         """
         Returns cluster description. Queries aws to get the arn.
         :return:
         """
         redshift_client = AWSClient(client_name='redshift').client
-        cluster_description = redshift_client.describe_clusters(ClusterIdentifier=self.cluster_identifier)['Clusters'][0]
+        cluster_description = redshift_client.describe_clusters(ClusterIdentifier=RedshiftCluster.cluster_identifier)['Clusters'][0]
 
         return cluster_description
 
-    def get_cluster_status(self):
+    @staticmethod
+    def get_cluster_status():
         """
         Returns cluster status.
         :return: string containing cluster status
         """
-        cluster_description = self.get_cluster_description()
+        cluster_description = RedshiftCluster.get_cluster_description()
         cluster_status = cluster_description['ClusterStatus']
 
         return cluster_status
 
-    def get_cluster_vpc_id_from_cloud(self):
+    @staticmethod
+    def get_cluster_vpc_id_from_cloud():
         """
         Returns cluster vpc id. Queries aws to get the information.
         :return:
         """
-        cluster_description = self.get_cluster_description()
+        cluster_description = RedshiftCluster.get_cluster_description()
         vpc_id = cluster_description['VpcId']
 
         return vpc_id
 
-    def get_cluster_address_from_cloud(self):
+    @staticmethod
+    def get_cluster_address_from_cloud():
         """
         Returns cluster address. Queries aws to get the information.
         :return:
         """
-        cluster_description = self.get_cluster_description()
+        cluster_description = RedshiftCluster.get_cluster_description()
         arn = cluster_description['Endpoint']['Address']
 
         return arn
 
-    def get_cluster_port_from_cloud(self):
+    @staticmethod
+    def get_cluster_port_from_cloud():
         """
         Returns cluster port. Queries aws to get the information.
         :return:
         """
-        cluster_description = self.get_cluster_description()
+        cluster_description = RedshiftCluster.get_cluster_description()
         port = cluster_description['Endpoint']['Port']
 
         return port
 
-    def is_available(self):
+    @staticmethod
+    def is_available():
         """
         Returns whether cluster status is available.
         :return: boolean
         """
-        cluster_status = self.get_cluster_status()
+        cluster_status = RedshiftCluster.get_cluster_status()
 
         return cluster_status == 'available'
 
-    def set_cluster_address(self):
+    @staticmethod
+    def wait_for_cluster_availability():
         """
-        Sets the cluster address.
+        Waits until cluster is available.
         :return:
         """
-        while not self.is_available():
+        while not RedshiftCluster.is_available():
             print('+++++ Cluster is not available yet. '
                   'Waiting 10 seconds before checking the cluster status again. +++++')
 
@@ -237,14 +245,15 @@ class RedshiftCluster:
 
         print('+++++ Cluster is available. +++++')
 
-    def describe_cluster(self):
+    @staticmethod
+    def describe_cluster():
         """
         Describes redshift cluster.
         :return:
         """
         try:
             print('+++++ Describing cluster: +++++')
-            cluster_description = self.get_cluster_description()
+            cluster_description = RedshiftCluster.get_cluster_description()
             print(RedshiftCluster.prettyRedshiftProps(cluster_description))
         except Exception as e:
             print('+++++ Threw Exception +++++')
