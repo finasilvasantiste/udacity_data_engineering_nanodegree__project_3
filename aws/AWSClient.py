@@ -8,16 +8,16 @@ class AWSClient:
     aws_users = {'admin': 'AWS_CREDS_ADMIN'}
 
     def __init__(self, resource):
-        self.aws_user = 'admin'
         session = self.get_boto3_session()
         self.client = session.client(resource)
 
-    def get_boto3_session(self):
+    @classmethod
+    def get_boto3_session(cls):
         """
         Returns authenticated boto3 session.
         :return:
         """
-        aws_access_key_id, aws_secret_access_key, aws_region = self.get_aws_credentials()
+        aws_access_key_id, aws_secret_access_key, aws_region = cls.get_aws_credentials()
 
         session = boto3.Session(aws_access_key_id=aws_access_key_id,
                                 aws_secret_access_key=aws_secret_access_key,
@@ -25,16 +25,18 @@ class AWSClient:
 
         return session
 
-    def get_aws_credentials(self):
+    @classmethod
+    def get_aws_credentials(cls):
         """
-        Returns aws credentials for given user.
+        Returns aws credentials for admin user.
         :return: three strings
         """
         config = configparser.ConfigParser()
         config.read_file((open(r'dwh.cfg')))
+        aws_user = cls.aws_users['admin']
 
-        aws_access_key_id = config.get(self.aws_users[self.aws_user], 'AWS_ACCESS_KEY_ID')
-        aws_secret_access_key = config.get(self.aws_users[self.aws_user], 'AWS_SECRET_ACCESS_KEY')
-        aws_region = config.get(self.aws_users[self.aws_user], 'AWS_REGION')
+        aws_access_key_id = config.get(aws_user, 'AWS_ACCESS_KEY_ID')
+        aws_secret_access_key = config.get(aws_user, 'AWS_SECRET_ACCESS_KEY')
+        aws_region = config.get(aws_user, 'AWS_REGION')
 
         return aws_access_key_id, aws_secret_access_key, aws_region
