@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # db = DBHandler(redshiftCluster=rc)
 
-    ### (This is still is issue:)
+    ### (This is still an issue:)
     ### Once resources created successfully via rc.create_all_resources(), throws error:
     ### 'Is the server running and acceptingTCP/IP connections on port 5439?'
     # db.get_db_connection()
