@@ -3,7 +3,7 @@ from db.DBHandler import DBHandler
 
 
 if __name__ == "__main__":
-    ### CREATE REDSHIFT CLUSTER AND ITS NECESARRY RESOURCES
+    ### CREATE REDSHIFT CLUSTER AND ITS NECESSARY RESOURCES
     rc = RedshiftCluster()
 
     rc.create_all_resources()
