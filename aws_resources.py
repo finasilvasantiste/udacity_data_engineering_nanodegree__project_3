@@ -6,6 +6,9 @@ if __name__ == "__main__":
     ### CREATE REDSHIFT CLUSTER AND ITS NECESSARY RESOURCES
     rc = RedshiftCluster()
 
+    ### Used to work, but as of today (August 15th 2021) throws access denied error:
+    ### An error occurred (AccessDenied) when calling the CreateRole operation:
+    ### User: user/dwh_admin is not authorized to perform: iam:CreateRole on resource: role/sparkify-redshift-s3-role with an explicit deny
     rc.create_all_resources()
     # rc.describe_cluster()
 
@@ -13,5 +16,9 @@ if __name__ == "__main__":
 
 
     ### CREATE DB CONNECTION
+
     # db = DBHandler(redshiftCluster=rc)
+
+    ### Currently throws error:
+    ### 'Is the server running and acceptingTCP/IP connections on port 5439?'
     # db.get_db_connection()
