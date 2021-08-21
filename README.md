@@ -16,11 +16,14 @@ and running `pipenv install`.
 ``export PYTHONPATH=$PATHONPATH:`pwd```
   
 ## How to run the app
-- Create all aws redshift resources by running `pipenv run python3 aws/create_aws_resource.py`.
+- Create all aws resources needed to set up redshift by running `pipenv run python3 aws/create_aws_resource.py`.
   Running that will also populate the file `aws_role_arn.json`.
   
 
 - Create all tables by running `pipenv run python3 create_tables.py`.
 
 
-- Delete all aws redshift resources by running `pipenv run python3 aws/delete_aws_resource.py`
+- Run the ETL process by running `pipenv run python3 etl.py`
+
+
+- Delete all aws resources by running `pipenv run python3 aws/delete_aws_resource.py`
