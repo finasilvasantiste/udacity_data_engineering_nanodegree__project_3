@@ -24,6 +24,6 @@ AWS_REGION=us-east-1
 USER_NAME=sparkify-user
 PASSWORD=
 CLUSTER_IDENTIFIER=sparkify-cluster
-ADMIN_USER_ARN=
+ADMIN_USER_ARN=(Should be the arn of the user set in the section AWS_CREDS_ADMIN)
 IAM_ROLE_NAME=sparkify_redshift_s3_role
 DB_NAME=sparkify-db
