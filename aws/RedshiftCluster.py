@@ -4,6 +4,7 @@ from aws.AWSResource import AWSResource
 import pandas as pd
 import json
 import time
+import json
 
 config = configparser.ConfigParser()
 config.read_file((open(r'dwh.cfg')))
@@ -59,12 +60,27 @@ class RedshiftCluster:
             print(e)
 
         try:
-            print('+++++ Saving IAM Role ARN... +++++')
+            print('+++++ Saving IAM Role ARN to file... +++++')
 
             self.iam_role_arn = iam_client.get_role(RoleName=self.iam_role_name)['Role']['Arn']
+            RedshiftCluster.save_iam_role_arn_to_file(self.iam_role_arn)
         except Exception as e:
             print('+++++ Threw Exception +++++')
             print(e)
+
+    @staticmethod
+    def save_iam_role_arn_to_file(arn):
+        """
+        Saves iam role arn to file for future use.
+        :param arn: iam role arn
+        :return:
+        """
+        dictionary = {
+            "iam_role_arn": arn
+        }
+
+        with open("aws_role_arn.json", "w") as outfile:
+            json.dump(dictionary, outfile)
 
     def delete_iam_role(self):
         """
