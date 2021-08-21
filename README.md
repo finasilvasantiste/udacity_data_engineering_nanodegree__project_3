@@ -5,7 +5,8 @@
 
 ## Config file
 - Make a copy of the file `dwh.cfg.sample` and call it just `dwh.cfg`.
-- Enter your credentials. Make sure not to use any quotation marks.
+- Replace the empty values with your credentials, and leave the filled out values as they are. 
+  Make sure not to use any quotation marks.
 
 ## Dependencies
 - Install the pipenv virtual environment by running `pip3 install pipenv`.
