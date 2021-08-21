@@ -2,11 +2,7 @@ import configparser
 import json
 
 
-# CONFIG
-config = configparser.ConfigParser()
-config.read('dwh.cfg')
-
-
+# CONVENIENCE METHOD
 def load_iam_role_arn():
     """
     Loads iam role arn.
@@ -25,8 +21,14 @@ def load_iam_role_arn():
     return data['iam_role_arn']
 
 
+# CONFIG
+config = configparser.ConfigParser()
+config.read('dwh.cfg')
 iam_role_arn = load_iam_role_arn()
 s3_staging_data_region = 'us-west-2'
+log_data_url = config.get('S3', 'LOG_DATA')
+song_data_url = config.get('S3', 'SONG_DATA')
+
 
 # DROP TABLES
 
@@ -104,12 +106,18 @@ staging_events_copy = ("""
     credentials 'aws_iam_role={}'
     json 'auto'
     compupdate off region '{}';
-""").format(config.get('S3', 'LOG_DATA'),
+""").format(log_data_url,
             iam_role_arn,
             s3_staging_data_region)
 
 staging_songs_copy = ("""
-""").format()
+    copy staging_songs from '{}/A'
+    credentials 'aws_iam_role={}'
+    json 'auto'
+    compupdate off region '{}';
+""").format(song_data_url,
+            iam_role_arn,
+            s3_staging_data_region)
 
 # FINAL TABLES
 
@@ -137,5 +145,5 @@ create_table_queries = [staging_events_table_create,
 drop_table_queries = [staging_events_table_drop,
                       staging_songs_table_drop]
 # copy_table_queries = [staging_events_copy, staging_songs_copy]
-copy_table_queries = [staging_events_copy]
+copy_table_queries = [staging_songs_copy]
 insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]

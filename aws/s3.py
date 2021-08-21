@@ -10,7 +10,10 @@ def print_s3_bucket_content():
 
     bucket = s3_resource.Bucket('udacity-dend')
 
-    for obj in bucket.objects.filter(Prefix="log_data"):
+    # prefix = "log_data"
+    prefix = "song_data"
+
+    for obj in bucket.objects.filter(Prefix=prefix):
         print(obj)
 
 
