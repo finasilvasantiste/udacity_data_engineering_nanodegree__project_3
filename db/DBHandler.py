@@ -39,8 +39,8 @@ class DBHandler:
         #
         #     conn.commit()
         #     results = cur.fetchall()
-        #     # for r in results:
-        #         # print(r)
+        #     for r in results:
+        #         print(r)
         #
         # conn.close()
 

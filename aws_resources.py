@@ -20,14 +20,3 @@ if __name__ == "__main__":
     RedshiftCluster.describe_cluster()
 
     # rc.delete_all_resources()
-
-
-    ### CREATE DB CONNECTION
-
-    db = DBHandler()
-
-    ### Once resources created successfully via rc.create_all_resources(), throws error:
-    ### 'Is the server running and acceptingTCP/IP connections on port 5439?'
-    ###
-    ### UPDATE: the set up for the security group was incomplete. I've switched to using the default security group.
-    # db.get_db_connection()
