@@ -11,7 +11,8 @@
 - Install the pipenv virtual environment by running `pip3 install pipenv`.
 - Set up the virtual environment by navigating to the root folder
 and running `pipenv install`.
-- Make sure your python path is set correctly by running: export PYTHONPATH=$PATHONPATH:`pwd`  
+- Make sure your python path is set correctly by running:
+``export PYTHONPATH=$PATHONPATH:`pwd```
   
 ## How to start it
 - Create all aws redshift resources by running `pipenv run python3 aws/create_aws_resource.py`
