@@ -113,7 +113,7 @@ CREATE TABLE "songplay_fact" (
 user_table_create = ("""
 CREATE TABLE "users_dim" (
     "id" double precision DEFAULT nextval('users_dim_seq') NOT NULL,
-    "user_id" NUMERIC NOT NULL,
+    "user_id" NUMERIC,
     "first_name" VARCHAR(250),
     "last_name" VARCHAR(250),
     "gender" VARCHAR(250),
@@ -124,7 +124,7 @@ CREATE TABLE "users_dim" (
 song_table_create = ("""
 CREATE TABLE "songs_dim" (
     "id" double precision DEFAULT nextval('songs_dim_seq') NOT NULL,
-    "song_id" NUMERIC NOT NULL,
+    "song_id" NUMERIC,
     "title" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "year" NUMERIC,
@@ -135,7 +135,7 @@ CREATE TABLE "songs_dim" (
 artist_table_create = ("""
 CREATE TABLE "artists_dim" (
     "id" double precision DEFAULT nextval('artists_dim_seq') NOT NULL,
-    "artist_id" NUMERIC NOT NULL,
+    "artist_id" NUMERIC,
     "name" VARCHAR(250),
     "location" VARCHAR(250),
     "lattitude" VARCHAR(250),
@@ -146,7 +146,7 @@ CREATE TABLE "artists_dim" (
 time_table_create = ("""
 CREATE TABLE "times_dim" (
     "id" double precision DEFAULT nextval('times_dim_seq') NOT NULL,
-    "start_time" NUMERIC NOT NULL,
+    "start_time" NUMERIC,
     "hour" VARCHAR(250),
     "day" VARCHAR(250),
     "week" NUMERIC,
@@ -183,8 +183,8 @@ songplay_table_insert = ("""
 
 user_table_insert = ("""
 INSERT INTO users_dim (user_id, first_name, last_name, gender, level)
-(SELECT user_id, first_name, last_name, gender, level
-FROM staging_events)
+SELECT user_id, first_name, last_name, gender, level
+FROM staging_events;
 """)
 
 song_table_insert = ("""
