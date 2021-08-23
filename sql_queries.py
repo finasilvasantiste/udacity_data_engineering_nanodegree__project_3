@@ -73,7 +73,7 @@ CREATE TABLE "staging_events" (
     "session_id" NUMERIC,
     "song" VARCHAR(250),
     "status" NUMERIC,
-    "ts" NUMERIC NOT NULL NOT NULL,
+    "ts" BIGINT,
     "user_agent" VARCHAR(250),
     "user_id" NUMERIC
 );
@@ -82,12 +82,12 @@ CREATE TABLE "staging_events" (
 staging_songs_table_create = ("""
 CREATE TABLE "staging_songs" (
     "num_songs" NUMERIC,
-    "artist_id" VARCHAR(250) NOT NULL,
+    "artist_id" VARCHAR(250),
     "artist_latitude" VARCHAR(250),
     "artist_longitude" VARCHAR(250),
     "artist_location" VARCHAR(250),
     "artist_name" VARCHAR(250),
-    "song_id" VARCHAR(250) NOT NULL,
+    "song_id" VARCHAR(250),
     "title" VARCHAR(250),
     "duration" NUMERIC,
     "year" NUMERIC
@@ -142,13 +142,13 @@ CREATE TABLE "artists_dim" (
 
 time_table_create = ("""
 CREATE TABLE "times_dim" (
-    "start_time" NUMERIC,
-    "hour" VARCHAR(250),
-    "day" VARCHAR(250),
+    "start_time" TIMESTAMP,
+    "hour" NUMERIC,
+    "day" NUMERIC,
     "week" NUMERIC,
     "month" NUMERIC,
     "year" NUMERIC,
-    "weekday" NUMERIC
+    "weekday" VARCHAR(250)
 );
 """)
 
@@ -197,8 +197,16 @@ FROM staging_songs;
 
 time_table_insert = ("""
 INSERT INTO times_dim (start_time)
-SELECT ts
+SELECT TIMESTAMP 'epoch' + ts/1000 * interval '1 second' AS start_time
 FROM staging_events;
+INSERT INTO times_dim (hour, day, week, month, year, weekday)
+SELECT extract(hour from start_time),
+extract(day from start_time),
+extract(week from start_time),
+extract(month from start_time),
+extract(year from start_time),
+extract(dow from start_time)
+FROM times_dim;
 """)
 
 # QUERY LISTS
@@ -223,5 +231,5 @@ copy_table_queries = [staging_events_copy,
 # insert_table_queries = [user_table_insert,
 #                         song_table_insert,
 #                         artist_table_insert,
-#                         time_table_insert]
+                        # time_table_insert]
 insert_table_queries = [time_table_insert]
