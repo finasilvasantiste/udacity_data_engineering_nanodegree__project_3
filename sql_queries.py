@@ -122,7 +122,7 @@ CREATE TABLE "users_dim" (
 
 song_table_create = ("""
 CREATE TABLE "songs_dim" (
-    "song_id" NUMERIC,
+    "song_id" VARCHAR(250),
     "title" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "year" NUMERIC,
@@ -132,10 +132,10 @@ CREATE TABLE "songs_dim" (
 
 artist_table_create = ("""
 CREATE TABLE "artists_dim" (
-    "artist_id" NUMERIC,
+    "artist_id" VARCHAR(250),
     "name" VARCHAR(250),
     "location" VARCHAR(250),
-    "lattitude" VARCHAR(250),
+    "latitude" VARCHAR(250),
     "longitude" VARCHAR(250)
 );
 """)
@@ -184,15 +184,21 @@ FROM staging_events;
 """)
 
 song_table_insert = ("""
-INSERT INTO songs_dim (user_id, first_name, last_name, gender, level)
-SELECT user_id, first_name, last_name, gender, level
-FROM staging_events;
+INSERT INTO songs_dim (song_id, title, artist_id, year, duration)
+SELECT song_id, title, artist_id, year, duration
+FROM staging_songs;
 """)
 
 artist_table_insert = ("""
+INSERT INTO artists_dim (artist_id, name, location, latitude, longitude)
+SELECT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
+FROM staging_songs;
 """)
 
 time_table_insert = ("""
+INSERT INTO times_dim (start_time)
+SELECT ts
+FROM staging_events;
 """)
 
 # QUERY LISTS
@@ -214,4 +220,8 @@ drop_table_queries = [songplay_table_drop,
 copy_table_queries = [staging_events_copy,
                       staging_songs_copy]
 # insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
-insert_table_queries = [user_table_insert]
+# insert_table_queries = [user_table_insert,
+#                         song_table_insert,
+#                         artist_table_insert,
+#                         time_table_insert]
+insert_table_queries = [time_table_insert]
