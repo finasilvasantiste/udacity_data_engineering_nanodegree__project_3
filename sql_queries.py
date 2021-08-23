@@ -111,7 +111,7 @@ CREATE TABLE "songplay_fact" (
 
 user_table_create = ("""
 CREATE TABLE "users_dim" (
-    "user_id" NUMERIC PRIMARY KEY,
+    "user_id" NUMERIC,
     "first_name" VARCHAR(250),
     "last_name" VARCHAR(250),
     "gender" VARCHAR(250),
@@ -121,7 +121,7 @@ CREATE TABLE "users_dim" (
 
 song_table_create = ("""
 CREATE TABLE "songs_dim" (
-    "song_id" VARCHAR(250) PRIMARY KEY,
+    "song_id" VARCHAR(250),
     "title" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "year" NUMERIC,
@@ -131,7 +131,7 @@ CREATE TABLE "songs_dim" (
 
 artist_table_create = ("""
 CREATE TABLE "artists_dim" (
-    "artist_id" VARCHAR(250) PRIMARY KEY,
+    "artist_id" VARCHAR(250),
     "name" VARCHAR(250),
     "location" VARCHAR(250),
     "latitude" VARCHAR(250),
@@ -141,7 +141,7 @@ CREATE TABLE "artists_dim" (
 
 time_table_create = ("""
 CREATE TABLE "times_dim" (
-    "start_time" TIMESTAMP PRIMARY KEY,
+    "start_time" TIMESTAMP,
     "hour" NUMERIC,
     "day" NUMERIC,
     "week" NUMERIC,
