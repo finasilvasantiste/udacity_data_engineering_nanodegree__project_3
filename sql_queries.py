@@ -96,23 +96,22 @@ CREATE TABLE "staging_songs" (
 
 songplay_table_create = ("""
 CREATE TABLE "songplay_fact" (
-    "id" double precision DEFAULT nextval('songplay_fact_seq') NOT NULL,
-    "songplay_id" NUMERIC,
-    "start_time" VARCHAR(250) NOT NULL,
+    "songplay_id" double precision DEFAULT nextval('songplay_fact_seq') NOT NULL,
+    "start_time" TIMESTAMP NOT NULL,
     "user_id" VARCHAR(250),
     "level" VARCHAR(250),
     "song_id" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "song_id" VARCHAR(250) NOT NULL,
     "session_id" VARCHAR(250),
-    "location" NUMERIC,
-    "user_agent" NUMERIC
+    "location" VARCHAR(250),
+    "user_agent" VARCHAR(250)
 );
 """)
 
 user_table_create = ("""
 CREATE TABLE "users_dim" (
-    "user_id" NUMERIC,
+    "user_id" NUMERIC PRIMARY KEY,
     "first_name" VARCHAR(250),
     "last_name" VARCHAR(250),
     "gender" VARCHAR(250),
@@ -122,7 +121,7 @@ CREATE TABLE "users_dim" (
 
 song_table_create = ("""
 CREATE TABLE "songs_dim" (
-    "song_id" VARCHAR(250),
+    "song_id" VARCHAR(250) PRIMARY KEY,
     "title" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "year" NUMERIC,
@@ -132,7 +131,7 @@ CREATE TABLE "songs_dim" (
 
 artist_table_create = ("""
 CREATE TABLE "artists_dim" (
-    "artist_id" VARCHAR(250),
+    "artist_id" VARCHAR(250) PRIMARY KEY,
     "name" VARCHAR(250),
     "location" VARCHAR(250),
     "latitude" VARCHAR(250),
@@ -142,7 +141,7 @@ CREATE TABLE "artists_dim" (
 
 time_table_create = ("""
 CREATE TABLE "times_dim" (
-    "start_time" TIMESTAMP,
+    "start_time" TIMESTAMP PRIMARY KEY,
     "hour" NUMERIC,
     "day" NUMERIC,
     "week" NUMERIC,
@@ -175,6 +174,10 @@ staging_songs_copy = ("""
 # FINAL TABLES
 
 songplay_table_insert = ("""
+INSERT INTO songplay_fact (start_time)
+SELECT start_time
+FROM times_dim;
+
 """)
 
 user_table_insert = ("""
@@ -213,23 +216,18 @@ FROM times_dim;
 
 # create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
 # create_table_queries = [staging_events_table_create, staging_songs_table_create]
-create_table_queries = [user_table_create,
-                        song_table_create,
-                        artist_table_create,
-                        time_table_create]
+# create_table_queries = [songplay_table_create]
+create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create]
 # drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
 # drop_table_queries = [staging_events_table_drop, staging_songs_table_drop]
-drop_table_queries = [songplay_table_drop,
-                      user_table_drop,
-                      song_table_drop,
-                      artist_table_drop,
-                      time_table_drop]
+drop_table_queries = [user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+# drop_table_queries = [songplay_table_drop]
 
 copy_table_queries = [staging_events_copy,
                       staging_songs_copy]
 # insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
-# insert_table_queries = [user_table_insert,
-#                         song_table_insert,
-#                         artist_table_insert,
-                        # time_table_insert]
-insert_table_queries = [time_table_insert]
+insert_table_queries = [user_table_insert,
+                        song_table_insert,
+                        artist_table_insert,
+                        time_table_insert]
+# insert_table_queries = [songplay_table_insert]
