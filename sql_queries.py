@@ -111,7 +111,7 @@ CREATE TABLE "songplays_fact" (
 
 user_table_create = ("""
 CREATE TABLE "users_dim" (
-    "user_id" NUMERIC,
+    "user_id" NUMERIC PRIMARY KEY,
     "first_name" VARCHAR(250),
     "last_name" VARCHAR(250),
     "gender" VARCHAR(250),
@@ -121,7 +121,7 @@ CREATE TABLE "users_dim" (
 
 song_table_create = ("""
 CREATE TABLE "songs_dim" (
-    "song_id" VARCHAR(250),
+    "song_id" VARCHAR(250) PRIMARY KEY,
     "title" VARCHAR(250),
     "artist_id" VARCHAR(250),
     "year" NUMERIC,
@@ -131,7 +131,7 @@ CREATE TABLE "songs_dim" (
 
 artist_table_create = ("""
 CREATE TABLE "artists_dim" (
-    "artist_id" VARCHAR(250),
+    "artist_id" VARCHAR(250) PRIMARY KEY,
     "name" VARCHAR(250),
     "location" VARCHAR(250),
     "latitude" VARCHAR(250),
@@ -141,7 +141,7 @@ CREATE TABLE "artists_dim" (
 
 time_table_create = ("""
 CREATE TABLE "times_dim" (
-    "start_time" TIMESTAMP,
+    "start_time" TIMESTAMP PRIMARY KEY,
     "hour" NUMERIC,
     "day" NUMERIC,
     "week" NUMERIC,
@@ -173,6 +173,11 @@ staging_songs_copy = ("""
 
 # FINAL TABLES
 
+# I'm assuming that a 'valid' song play
+# is a song play that can be mapped to a user
+# and that it involves a song, which consists
+# of artist and title. That's why I'm doing the
+# NOT NULL constraints on those columns.
 songplay_table_insert = ("""
 INSERT INTO songplays_fact (start_time, user_id, 
 level, song_id, artist_id, session_id, location, user_agent)
@@ -183,60 +188,87 @@ FROM staging_events e JOIN staging_songs s
 ON e.artist=s.artist_name
 AND e.song=s.title
 AND e.length=s.duration
-WHERE e.artist IS NOT NULL;
-
+WHERE e.artist IS NOT NULL
+AND e.song IS NOT NULL
+AND e.user_id IS NOT NULL;
 """)
 
+# We want to make sure we have the most up-to-date
+# subscription level.
 user_table_insert = ("""
 INSERT INTO users_dim (user_id, first_name, last_name, gender, level)
 SELECT user_id, first_name, last_name, gender, level
-FROM staging_events;
+FROM songplays_fact
+ON CONFLICT (user_id) DO UPDATE SET level = EXCLUDED.level;
 """)
 
 song_table_insert = ("""
 INSERT INTO songs_dim (song_id, title, artist_id, year, duration)
 SELECT song_id, title, artist_id, year, duration
-FROM staging_songs;
+FROM songplays_fact
+ON CONFLICT (song_id) DO NOTHING;
 """)
 
 artist_table_insert = ("""
 INSERT INTO artists_dim (artist_id, name, location, latitude, longitude)
 SELECT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-FROM staging_songs;
+FROM songplays_fact
+ON CONFLICT (artist_id) DO NOTHING;
 """)
 
 time_table_insert = ("""
-INSERT INTO times_dim (start_time)
-SELECT TIMESTAMP 'epoch' + ts/1000 * interval '1 second' AS start_time
-FROM staging_events;
-INSERT INTO times_dim (hour, day, week, month, year, weekday)
-SELECT extract(hour from start_time),
+INSERT INTO times_dim (start_time, hour, day, week, month, year, weekday)
+SELECT start_time,
+extract(hour from start_time),
 extract(day from start_time),
 extract(week from start_time),
 extract(month from start_time),
 extract(year from start_time),
 extract(dow from start_time)
-FROM times_dim;
+FROM songplays_fact
+ON CONFLICT (start_time) DO NOTHING;
 """)
 
 # QUERY LISTS
 
-# create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
+create_table_queries = [staging_events_table_create,
+                        staging_songs_table_create,
+                        songplay_table_create,
+                        user_table_create,
+                        song_table_create,
+                        artist_table_create,
+                        time_table_create]
 # create_table_queries = [staging_events_table_create, staging_songs_table_create]
-create_table_queries = [songplay_table_create]
-# create_table_queries = [user_table_create, song_table_create, artist_table_create, time_table_create]
+# create_table_queries = [songplay_table_create]
+# create_table_queries = [user_table_create,
+#                         song_table_create,
+#                         artist_table_create,
+#                         time_table_create]
 
-# drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+drop_table_queries = [staging_events_table_drop,
+                      staging_songs_table_drop,
+                      songplay_table_drop,
+                      user_table_drop,
+                      song_table_drop,
+                      artist_table_drop,
+                      time_table_drop]
 # drop_table_queries = [staging_events_table_drop, staging_songs_table_drop]
-# drop_table_queries = [user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
-drop_table_queries = [songplay_table_drop]
+# drop_table_queries = [user_table_drop,
+#                       song_table_drop,
+#                       artist_table_drop,
+#                       time_table_drop]
+# drop_table_queries = [songplay_table_drop]
 
 copy_table_queries = [staging_events_copy,
                       staging_songs_copy]
 
-# insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [songplay_table_insert,
+                        user_table_insert,
+                        song_table_insert,
+                        artist_table_insert,
+                        time_table_insert]
 # insert_table_queries = [user_table_insert,
 #                         song_table_insert,
 #                         artist_table_insert,
 #                         time_table_insert]
-insert_table_queries = [songplay_table_insert]
+# insert_table_queries = [songplay_table_insert]
