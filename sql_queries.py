@@ -162,8 +162,8 @@ staging_events_copy = ("""
             iam_role_arn,
             s3_staging_data_region)
 
-# I've used "from '{}/A/A/A'" to have a smaller dataset
-# which makes things easier to work with during development.
+# During development I've used "from '{}/A/A/A'" to have a smaller dataset
+# which makes things easier to work with.
 staging_songs_copy = ("""
     copy staging_songs from '{}'
     credentials 'aws_iam_role={}'
