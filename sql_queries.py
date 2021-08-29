@@ -162,8 +162,10 @@ staging_events_copy = ("""
             iam_role_arn,
             s3_staging_data_region)
 
+# I've used "from '{}/A/A/A'" to have a smaller dataset
+# which makes things easier to work with during development.
 staging_songs_copy = ("""
-    copy staging_songs from '{}/A/A/A'
+    copy staging_songs from '{}'
     credentials 'aws_iam_role={}'
     json 'auto'
     compupdate off region '{}';
@@ -197,36 +199,38 @@ AND e.user_id IS NOT NULL;
 # subscription level.
 user_table_insert = ("""
 INSERT INTO users_dim (user_id, first_name, last_name, gender, level)
-SELECT user_id, first_name, last_name, gender, level
-FROM songplays_fact
-ON CONFLICT (user_id) DO UPDATE SET level = EXCLUDED.level;
+SELECT DISTINCT e.user_id, e.first_name, e.last_name, 
+e.gender, e.level
+FROM songplays_fact f JOIN 
+staging_events e ON f.user_id=e.user_id;
 """)
 
 song_table_insert = ("""
 INSERT INTO songs_dim (song_id, title, artist_id, year, duration)
-SELECT song_id, title, artist_id, year, duration
-FROM songplays_fact
-ON CONFLICT (song_id) DO NOTHING;
+SELECT DISTINCT s.song_id, s.title, s.artist_id, 
+s.year, s.duration
+FROM songplays_fact f JOIN
+staging_songs s ON f.song_id=s.song_id;
 """)
 
 artist_table_insert = ("""
 INSERT INTO artists_dim (artist_id, name, location, latitude, longitude)
-SELECT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-FROM songplays_fact
-ON CONFLICT (artist_id) DO NOTHING;
+SELECT DISTINCT s.artist_id, s.artist_name, 
+s.artist_location, s.artist_latitude, s.artist_longitude
+FROM songplays_fact f JOIN
+staging_songs s ON f.artist_id=s.artist_id;
 """)
 
 time_table_insert = ("""
 INSERT INTO times_dim (start_time, hour, day, week, month, year, weekday)
-SELECT start_time,
+SELECT DISTINCT start_time,
 extract(hour from start_time),
 extract(day from start_time),
 extract(week from start_time),
 extract(month from start_time),
 extract(year from start_time),
 extract(dow from start_time)
-FROM songplays_fact
-ON CONFLICT (start_time) DO NOTHING;
+FROM songplays_fact;
 """)
 
 # QUERY LISTS

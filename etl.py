@@ -18,7 +18,7 @@ def main():
     db_handler = DBHandler()
     cur, conn = db_handler.get_db_cursor_connection()
     
-    # load_staging_tables(cur, conn)
+    load_staging_tables(cur, conn)
     insert_tables(cur, conn)
 
     conn.close()
