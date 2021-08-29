@@ -1,4 +1,5 @@
-; Not using CLUSTER and IAM_ROLE dictionaries.
+; I'm not using CLUSTER and IAM_ROLE dictionaries.
+; Instead, I'm introducing two new dictionaries: AWS_CREDS_ADMIN and REDSHIFT_CLUSTER.
 ;[CLUSTER]
 ;HOST=
 ;DB_NAME=
@@ -10,12 +11,12 @@
 ;ARN=''
 
 [S3]
-LOG_DATA='s3://udacity-dend/log_data'
-LOG_JSONPATH='s3://udacity-dend/log_json_path.json'
-SONG_DATA='s3://udacity-dend/song_data'
+LOG_DATA=s3://udacity-dend/log_data
+LOG_JSONPATH=s3://udacity-dend/log_json_path.json
+SONG_DATA=s3://udacity-dend/song_data
 
 [AWS_CREDS_ADMIN]
-USER_NAME=dwh_admin
+USER_NAME=(name of an aws admin user)
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY_ID=
 AWS_REGION=us-east-1
