@@ -152,7 +152,12 @@ class RedshiftCluster:
                                            MasterUserPassword=self.password,
                                            NumberOfNodes=self.number_of_nodes,
                                            IamRoles=[self.iam_role_arn],
-                                           DBName=self.db_name)
+                                           DBName=self.db_name,
+                                           # This is to make it work for the airflow project,
+                                           # which requires us-west-2 region.
+                                           # (I went into the console and created this subnet in that region.)
+                                           ClusterSubnetGroupName='cluster-subnet-group-1'
+                                           )
             RedshiftCluster.wait_for_cluster_availability()
         except Exception as e:
             print('+++++ Threw Exception +++++')
